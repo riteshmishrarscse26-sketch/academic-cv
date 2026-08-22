@@ -1,0 +1,81 @@
+# =========================================================
+# SITE CONFIGURATION
+# =========================================================
+
+title: "Ritesh Mishra"
+baseURL: "http://localhost:1313/"
+
+# Default language
+defaultContentLanguage: en
+
+# Enable relative URLs
+relativeURLs: false
+
+# =========================================================
+# SITE SETTINGS
+# =========================================================
+
+enableRobotsTXT: true
+
+# =========================================================
+# MARKDOWN
+# =========================================================
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+
+# =========================================================
+# TAXONOMIES
+# =========================================================
+
+taxonomies:
+  tag: tags
+  category: categories
+
+# =========================================================
+# OUTPUTS
+# =========================================================
+
+outputs:
+  home:
+    - HTML
+    - RSS
+
+# =========================================================
+# PERMALINKS
+# =========================================================
+
+permalinks:
+  blog: "/blog/:slug/"
+  projects: "/projects/:slug/"
+  publications: "/publications/:slug/"
+  courses: "/courses/:slug/"
+  events: "/events/:slug/"
+
+# =========================================================
+# PRIVACY
+# =========================================================
+
+privacy:
+  googleAnalytics:
+    disable: true
+
+  youtube:
+    disable: false
+
+  vimeo:
+    disable: false
+
+  x:
+    disable: true
+
+# =========================================================
+# SECURITY
+# =========================================================
+
+security:
+  funcs:
+    getenv:
+      - "^HUGO_"

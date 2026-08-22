@@ -7,19 +7,20 @@
 # ============================================================================
 
 # Generated site output
-public/
+/public/
 
-# Hugo resources (processed assets)
-resources/
+# Hugo processed resources
+/resources/
 
 # Hugo build lock
 .hugo_build.lock
 
-# Hugo stats
+# Hugo statistics
 hugo_stats.json
 
-# Auto-generated JS config
+# Auto-generated JavaScript configuration
 **/assets/jsconfig.json
+
 
 # ============================================================================
 # Node.js & Package Managers
@@ -27,6 +28,12 @@ hugo_stats.json
 
 # Dependencies
 node_modules/
+
+# Package manager logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
 
 # ============================================================================
 # Environment & Configuration
@@ -37,6 +44,7 @@ node_modules/
 .env.local
 .env.*.local
 
+
 # ============================================================================
 # Generated Content
 # ============================================================================
@@ -45,8 +53,9 @@ node_modules/
 pagefind/
 static/pagefind/
 
+
 # ============================================================================
-# Operating System
+# Operating System Files
 # ============================================================================
 
 # macOS
@@ -61,9 +70,36 @@ Desktop.ini
 # Linux
 *~
 
+
 # ============================================================================
-# Logs & Temporary Files
+# Logs
 # ============================================================================
 
 *.log
-npm-debug.log*
+
+
+# ============================================================================
+# Backup & Temporary Files
+# ============================================================================
+
+*.backup
+*.bak
+*.save
+*.swp
+*.swo
+*.tmp
+
+
+# ============================================================================
+# Editor Files
+# ============================================================================
+
+.vscode/
+.idea/
+
+
+# ============================================================================
+# Hugo Development Files
+# ============================================================================
+
+/.hugo/
