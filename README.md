@@ -1,247 +1,310 @@
-# [The Academic CV That Gets You Hired](https://github.com/HugoBlox/hugo-theme-academic-cv)
+[Clang]: https://clang.llvm.org/
+[GCC]: https://gcc.gnu.org/
+[Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+[Go]: https://go.dev/doc/install
+[bep]: https://github.com/bep
+[bugs]: https://github.com/gohugoio/hugo/issues?q=is%3Aopen+is%3Aissue+label%3ABug
+[contributing]: CONTRIBUTING.md
+[create a proposal]: https://github.com/gohugoio/hugo/issues/new?labels=Proposal%2C+NeedsTriage&template=feature_request.md
+[dart sass]: https://gohugo.io/functions/css/sass/#dart-sass
+[details]: https://gohugo.io/host-and-deploy/deploy-with-hugo-deploy/
+[documentation repository]: https://github.com/gohugoio/hugoDocs
+[documentation]: https://gohugo.io/documentation
+[dragonfly bsd, freebsd, netbsd, and openbsd]: https://gohugo.io/installation/bsd
+[features]: https://gohugo.io/about/features/
+[forum]: https://discourse.gohugo.io
+[friends]: https://github.com/gohugoio/hugo/graphs/contributors
+[hugo modules]: https://gohugo.io/hugo-modules/
+[installation]: https://gohugo.io/installation
+[issue queue]: https://github.com/gohugoio/hugo/issues
+[linux]: https://gohugo.io/installation/linux
+[macos]: https://gohugo.io/installation/macos
+[prebuilt binary]: https://github.com/gohugoio/hugo/releases/latest
+[requesting help]: https://discourse.gohugo.io/t/requesting-help/9132
+[spf13]: https://github.com/spf13
+[static site generator]: https://en.wikipedia.org/wiki/Static_site_generator
+[support]: https://discourse.gohugo.io
+[themes]: https://themes.gohugo.io/
+[transpile sass to css]: https://gohugo.io/functions/css/sass/
+[website]: https://gohugo.io
+[windows]: https://gohugo.io/installation/windows
 
-[![Screenshot](.github/preview.webp)](https://hugoblox.com/templates/academic-cv?utm_source=github&utm_medium=readme&utm_content=preview)
+<a href="https://gohugo.io/"><img src="https://raw.githubusercontent.com/gohugoio/gohugoioTheme/master/static/images/hugo-logo-wide.svg?sanitize=true" alt="Hugo" width="565"></a>
 
-<!-- TODO: Replace with a short demo video showing Hugo Chat generating an academic profile page -->
-<!-- https://github.com/user-attachments/assets/REPLACE_ME -->
-
-<h1 align="center">The Portfolio That Works While You Sleep</h1>
-
-<p align="center">
-  <strong>Your unfair advantage in academia.</strong><br/>
-  Stop sending PDFs into the void. Build a living portfolio that boosts citations, attracts collaborators, and lands offers — all from simple Markdown files you own.<br/>
-  Built on <a href="https://github.com/HugoBlox/kit">HugoBlox</a> — the open-source framework where AI generates your pages and you own everything as Markdown.
-</p>
-
-<p align="center">
-  <a href="https://hugoblox.com/templates/academic-cv?utm_source=github&utm_medium=readme&utm_content=cta_top"><b>Deploy Free (60s)</b></a>
-  &nbsp;&nbsp;|&nbsp;&nbsp;
-  <a href="https://hugo.chat/?utm_source=github&utm_medium=readme&utm_content=cta_top_academic-cv"><b>Customize with AI</b></a>
-  &nbsp;&nbsp;|&nbsp;&nbsp;
-  <a href="https://hugoblox.com/templates/academic-cv?utm_source=github&utm_medium=readme&utm_content=demo">Live Demo</a>
-</p>
-
-<div align="center">
-
-  <a href="https://github.com/HugoBlox/hugo-theme-academic-cv">
-    <img src="https://img.shields.io/github/stars/HugoBlox/hugo-theme-academic-cv?label=Star&logo=github&style=flat-square&color=181717" alt="GitHub Stars">
-  </a>
-  <a href="https://discord.gg/z8wNYzb">
-    <img src="https://img.shields.io/discord/722225264733716590?label=Discord&logo=discord&logoColor=white&style=flat-square&color=5865F2" alt="Discord">
-  </a>
-  <a href="https://github.com/HugoBlox/kit">
-    <img src="https://img.shields.io/github/stars/HugoBlox/kit?label=HugoBlox&logo=github&style=flat-square&color=181717" alt="HugoBlox Stars">
-  </a>
-
-</div>
-
-<p align="center">
-  <sub>Part of the <a href="https://github.com/HugoBlox/kit"><strong>HugoBlox</strong></a> ecosystem · Trusted by <strong>150,000+</strong> researchers at <strong>MIT, Stanford, Google & NVIDIA</strong> · Rated <strong>4.9/5</strong> (official survey) · Since <strong>2016</strong></sub>
-</p>
+A fast and flexible static site generator built with love by [bep][], [spf13][], and [friends][] in Go.
 
 ---
 
-## Why This Template?
+[![GoDoc](https://godoc.org/github.com/gohugoio/hugo?status.svg)](https://godoc.org/github.com/gohugoio/hugo)
+[![Tests on Linux, MacOS and Windows](https://github.com/gohugoio/hugo/workflows/Test/badge.svg)](https://github.com/gohugoio/hugo/actions?query=workflow%3ATest)
+[![Go Report Card](https://goreportcard.com/badge/github.com/gohugoio/hugo)](https://goreportcard.com/report/github.com/gohugoio/hugo)
 
-Most academic CVs are static PDFs that get lost in the pile. This is an **always-on portfolio** that works 24/7 to advance your career:
+[Website][] | [Installation][] | [Documentation][] | [Support][] | [Contributing][] | <a rel="me" href="https://fosstodon.org/@gohugoio">Mastodon</a>
 
-- **Students & grads** applying to top labs and industry roles — stand out with a living portfolio, not a flat PDF
-- **Researchers** who want a citable online presence with publications, projects, and talks in one place
-- **Faculty & PIs** showcasing their lab, group news, and team members
-- **Anyone with publications** who wants auto-imported citations from BibTeX/DOI without manual formatting
+## Overview
 
-> *"My citations went up 3x after switching to this template. Colleagues started finding my work through Google Scholar links back to my site. The BibTeX auto-sync is a lifesaver."*
-> — **Dr. Li Zhang**, AI Research Scientist
+Hugo is a [static site generator][] written in Go, optimized for speed and designed for flexibility. With its advanced templating system and fast asset pipelines, Hugo renders a complete site in seconds, often less.
 
-> *"I set this up during a weekend and my PhD students had their profiles live by Monday. They just edit Markdown — no tickets to IT, no WordPress logins."*
-> — **Prof. Sarah Chen**, Computer Science, ETH Zürich
+Due to its flexible framework, multilingual support, and powerful taxonomy system, Hugo is widely used to create:
 
-<p align="center">
-  <a href="https://hugoblox.com/templates/academic-cv?utm_source=github&utm_medium=readme&utm_content=cta_mid">
-    <img src="https://img.shields.io/badge/⚡️%20Deploy%20Your%20CV%20in%2060s-7c3aed?style=for-the-badge" alt="Deploy this template" width="400">
-  </a>
+- Corporate, government, nonprofit, education, news, event, and project sites
+- Documentation sites
+- Image portfolios
+- Landing pages
+- Business, professional, and personal blogs
+- Resumes and CVs
+
+Use Hugo's embedded web server during development to instantly see changes to content, structure, behavior, and presentation. Then deploy the site to your host, or push changes to your Git provider for automated builds and deployment.
+
+Hugo's fast asset pipelines include:
+
+- CSS Processing &ndash; Bundle, transform, minify, create source maps, perform SRI hashing, and integrate with PostCSS.
+- Image processing &ndash; Convert, resize, crop, rotate, adjust colors, apply filters, overlay text and images, and extract metadata
+- JavaScript bundling &ndash; Transpile TypeScript and JSX to JavaScript, bundle, tree shake, minify, create source maps, and perform SRI hashing.
+- Sass processing &ndash; Transpile Sass to CSS, bundle, tree shake, minify, create source maps, perform SRI hashing, and integrate with PostCSS
+- Tailwind CSS processing &ndash; Compile Tailwind CSS utility classes into standard CSS, bundle, tree shake, optimize, minify, perform SRI hashing, and integrate with PostCSS
+
+And with [Hugo Modules][], you can share content, assets, data, translations, themes, templates, and configuration with other projects via public or private Git repositories.
+
+See the [features][] section of the documentation for a comprehensive summary of Hugo's capabilities.
+
+## Sponsors
+
+<p>&nbsp;</p>
+<p float="left">
+  <a href="https://www.jetbrains.com/go/?utm_source=OSS&utm_medium=referral&utm_campaign=hugo" target="_blank"><img src="https://raw.githubusercontent.com/gohugoio/hugoDocs/master/assets/images/sponsors/goland.svg" width="200" alt="The complete IDE crafted for professional Go developers."></a>
+  &nbsp;&nbsp;&nbsp;
+    <a href="https://cloudcannon.com/hugo-cms/?utm_campaign=HugoSponsorship&utm_source=sponsor&utm_content=gohugo" target="_blank"><img src="https://raw.githubusercontent.com/gohugoio/hugoDocs/master/assets/images/sponsors/cloudcannon-cms-logo.svg" width="200" alt="CloudCannon"></a>
 </p>
 
----
+## Editions
 
-## Features
+Hugo is available in several editions. Use the standard edition unless you need additional features.
 
-| Feature | Benefit |
-| :--- | :--- |
-| **BibTeX / DOI auto-import** | Drop in a `.bib` file — publication pages generated automatically with proper citations. |
-| **Jupyter & RMarkdown** | Publish `.ipynb` notebooks as beautiful posts — code, outputs, and narrative intact. |
-| **LaTeX math** | Native rendering for equations and technical writing. |
-| **Markdown slides** | Present with reveal.js — math, syntax highlighting, diagrams, speaker notes. |
-| **SEO & AI-ready** | Optimized for search engines and LLMs — your work gets found, cited, and recommended. |
-| **AI page generation** | Describe what you need to [Hugo Chat](https://hugo.chat/?utm_source=github&utm_medium=readme&utm_content=features_academic-cv) — get structured pages with correct front matter instantly. |
-| **Visual editor** | Drag-and-drop blocks in VS Code with [Ownable CMS](https://marketplace.visualstudio.com/items?itemName=ownable.ownable). No coding needed. |
-| **Plain Markdown** | Every file is human-readable. No database, no lock-in, take your content anywhere. |
-| **Free hosting** | Deploy to GitHub Pages, Netlify, Vercel, or Cloudflare — all free tier. |
+Feature|standard|deploy|extended|extended/deploy
+:--|:-:|:-:|:-:|:-:
+Core features|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:
+Direct cloud deployment (1)|:x:|:heavy_check_mark:|:x:|:heavy_check_mark:
+LibSass support (2)|:x:|:x:|:heavy_check_mark:|:heavy_check_mark:
 
----
+(1) Deploy your site directly to a Google Cloud Storage bucket, an AWS S3 bucket, or an Azure Storage container. See&nbsp;[details][].
 
-## 🚀 Get Started
+(2) [Transpile Sass to CSS][] via embedded LibSass. Note that embedded LibSass was deprecated in v0.153.0 and will be removed in a future release. Use the [Dart Sass][] transpiler instead, which is compatible with any edition.
 
-### Step 1: Deploy Your Site
+## Installation
 
-**Option A: Launch in browser** (fastest — no install needed)
+Install Hugo from a [prebuilt binary][], package manager, or package repository. Please see the installation instructions for your operating system:
 
-> [!TIP]
-> Deploy a live site in 60 seconds — no software to install:
-> [**Deploy Academic CV free**](https://hugoblox.com/templates/academic-cv?utm_source=github&utm_medium=readme&utm_content=get_started)
+- [macOS][]
+- [Linux][]
+- [Windows][]
+- [DragonFly BSD, FreeBSD, NetBSD, and OpenBSD][]
 
-**Option B: Use the CLI**
+## Build from source
 
-```bash
-# Requires Hugo Extended & Node.js
-npx hugoblox create site --template academic-cv
+To build Hugo from source you must install:
+
+1. [Git][]
+1. [Go][] version 1.26.0 or later
+
+### Standard edition
+
+To build and install the standard edition:
+
+```sh
+CGO_ENABLED=0 go install github.com/gohugoio/hugo@latest
 ```
 
-### Step 2: Customize With AI + Visual Editing
+### Deploy edition
 
-<table>
-<tr>
-<td width="50%">
+To build and install the deploy edition:
 
-**✨ Hugo Chat** — AI customization
+```sh
+CGO_ENABLED=0 go install -tags withdeploy github.com/gohugoio/hugo@latest
+```
 
-Tell Hugo Chat what you want in plain English. It generates structured pages with the right front matter, shortcodes, and blocks for this template.
+### Extended edition
 
-> *"Add a publications page with my 2024 papers from this BibTeX file"*
+To build and install the extended edition, first install a C compiler such as [GCC][] or [Clang][] and then run the following command.
 
-[**Try Hugo Chat — free**](https://hugo.chat/?utm_source=github&utm_medium=readme&utm_content=step2_academic-cv)
+```sh
+CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@latest
+```
 
-</td>
-<td width="50%">
+### Extended/deploy edition
 
-**Ownable CMS** — visual editing in VS Code
+To build and install the extended/deploy edition, first install a C compiler such as [GCC][] or [Clang][] and then run the following command.
 
-1. Install [Ownable CMS](https://marketplace.visualstudio.com/items?itemName=ownable.ownable)
-2. Open your project in VS Code
-3. Click the Ownable icon to start editing visually
+```sh
+CGO_ENABLED=1 go install -tags extended,withdeploy github.com/gohugoio/hugo@latest
+```
 
-</td>
-</tr>
-</table>
+## Star History
 
-![Ownable CMS in Action](https://raw.githubusercontent.com/HugoBlox/kit/main/.github/media/studio/slide-1.webp)
-*Ownable CMS: Drag-and-drop page builder inside VS Code.*
+[![Star History Chart](https://api.star-history.com/svg?repos=gohugoio/hugo&type=Timeline)](https://star-history.com/#gohugoio/hugo&Timeline)
 
-> [!NOTE]
-> **New to Hugo?** No problem. You don't need to know Hugo — edit visually or write Markdown. Hugo is the engine under the hood that makes your site fast, secure, and free to host. [Learn more →](https://docs.ownable.dev/?utm_source=github&utm_medium=readme&utm_content=docs_academic-cv)
+## Documentation
 
----
+Hugo's [documentation][] includes installation instructions, a quick start guide, conceptual explanations, reference information, and examples.
 
-## 💎 Go Premium
+Please submit documentation issues and pull requests to the [documentation repository][].
 
-Love the free version? **Academic CV Pro** and **Resume Pro** take it further:
+## Support
 
-- Premium designs that make an unforgettable first impression
-- Advanced timeline and layout options
-- Full-featured course/lecture sections
-- Remove attribution, priority support
+Please **do not use the issue queue** for questions or troubleshooting. Unless you are certain that your issue is a software defect, use the [forum][].
 
-| | **Academic CV** (Free) | **Academic CV Pro** |
-| :--- | :---: | :---: |
-| Design | Professional & clean | **Premium designs** |
-| Layouts | Standard sections | **Advanced timelines** |
-| Courses/lectures | Basic | **Full-featured** |
-| Support | Community | **Priority** |
+Hugo's [forum][] is an active community of users and developers who answer questions, share knowledge, and provide examples. A quick search of over 20,000 topics will often answer your question. Please be sure to read about [requesting help][] before asking your first question.
 
-<p align="center">
-  <a href="https://hugoblox.com/pricing?utm_source=github&utm_medium=readme&utm_content=premium_academic-cv"><b>Compare plans</b></a>
-  &nbsp;&nbsp;|&nbsp;&nbsp;
-  <a href="https://hugoblox.com/templates/academic-cv-pro?utm_source=github&utm_medium=readme&utm_content=premium_deploy_academic-cv"><b>Deploy Academic CV Pro</b></a>
-  &nbsp;&nbsp;|&nbsp;&nbsp;
-  <a href="https://hugoblox.com/templates/resume-pro?utm_source=github&utm_medium=readme&utm_content=premium_deploy_resume"><b>Deploy Resume Pro</b></a>
-</p>
+## Contributing
 
----
+You can contribute to the Hugo project by:
 
-## 🏆 Why HugoBlox?
+- Answering questions on the [forum][]
+- Improving the [documentation][]
+- Monitoring the [issue queue][]
+- Creating or improving [themes][]
+- Squashing [bugs][]
 
-> *Why not just use WordPress, Webflow, or an AI builder like Lovable?*
+Please submit documentation issues and pull requests to the [documentation repository][].
 
-| | **AI builders** (Lovable, v0) | **CMS platforms** (WordPress, Webflow) | **HugoBlox** |
-| :--- | :---: | :---: | :---: |
-| AI generates your pages | Yes | No | **Yes** |
-| You own the output as readable files | No — React code | No — database | **Yes — Markdown** |
-| Free to host forever | No | No | **Yes** |
-| Human-editable without the tool | Barely | No | **Yes — it's Markdown** |
-| Open source | No | No | **Yes — MIT licensed** |
+If you have an idea for an enhancement or new feature, create a new topic on the [forum][] in the "Feature" category. This will help you to:
 
-> [!IMPORTANT]
-> Your content is plain Markdown files. No lock-in, no database, no vendor dependency. If you ever want to leave, take your files and go.
+- Determine if the capability already exists
+- Measure interest
+- Refine the concept
 
----
+If there is sufficient interest, [create a proposal][]. Do not submit a pull request until the project lead accepts the proposal.
 
-## FAQ
+For a complete guide to contributing to Hugo, see the [Contribution Guide](CONTRIBUTING.md).
+
+## License
+
+For the Hugo source code, see [LICENSE](/LICENSE).
+
+We also bundle some libraries in binary/WASM form:
+
+- [libwebp](https://github.com/webmproject/libwebp), [BSD-3-Clause license](https://github.com/webmproject/libwebp?tab=BSD-3-Clause-1-ov-file#readme)
+- [Katex](https://github.com/KaTeX/KaTeX), [MIT license](https://github.com/KaTeX/KaTeX?tab=MIT-1-ov-file#readme)
+- [QuickJS](https://github.com/bellard/quickjs?tab=License-1-ov-file#readme), [License](https://github.com/bellard/quickjs?tab=License-1-ov-file#readme)
+
+## Dependencies
+
+Hugo stands on the shoulders of great open source libraries. Run `hugo env --logLevel info` to display a list of dependencies.
 
 <details>
-<summary><b>Do I need to know Hugo?</b></summary>
-No. Edit visually with Ownable CMS or write Markdown. Hugo is the build engine — you don't need to touch it.
+<summary>See current dependencies</summary>
+
+```text
+github.com/BurntSushi/locker="v0.0.0-20171006230638-a6e239ea1c69"
+github.com/JohannesKaufmann/dom="v0.2.0"
+github.com/JohannesKaufmann/html-to-markdown/v2="v2.5.0"
+github.com/alecthomas/chroma/v2="v2.21.1"
+github.com/aymerick/douceur="v0.2.0"
+github.com/bep/clocks="v0.5.0"
+github.com/bep/debounce="v1.2.0"
+github.com/bep/gitmap="v1.9.0"
+github.com/bep/goat="v0.5.0"
+github.com/bep/godartsass/v2="v2.5.0"
+github.com/bep/golibsass="v1.2.0"
+github.com/bep/goportabletext="v0.1.0"
+github.com/bep/helpers="v0.6.0"
+github.com/bep/imagemeta="v0.12.0"
+github.com/bep/lazycache="v0.8.0"
+github.com/bep/logg="v0.4.0"
+github.com/bep/mclib="v1.20400.20402"
+github.com/bep/overlayfs="v0.10.0"
+github.com/bep/simplecobra="v0.6.1"
+github.com/bep/textandbinarywriter="v0.0.0-20251212174530-cd9f0732f60f"
+github.com/bep/tmc="v0.5.1"
+github.com/bits-and-blooms/bitset="v1.24.4"
+github.com/cespare/xxhash/v2="v2.3.0"
+github.com/clbanning/mxj/v2="v2.7.0"
+github.com/clipperhouse/displaywidth="v0.6.0"
+github.com/clipperhouse/stringish="v0.1.1"
+github.com/clipperhouse/uax29/v2="v2.3.0"
+github.com/cpuguy83/go-md2man/v2="v2.0.6"
+github.com/disintegration/gift="v1.2.1"
+github.com/dlclark/regexp2="v1.11.5"
+github.com/evanw/esbuild="v0.27.2"
+github.com/fatih/color="v1.18.0"
+github.com/frankban/quicktest="v1.14.6"
+github.com/fsnotify/fsnotify="v1.9.0"
+github.com/getkin/kin-openapi="v0.133.0"
+github.com/go-openapi/jsonpointer="v0.21.0"
+github.com/go-openapi/swag="v0.23.0"
+github.com/gobuffalo/flect="v1.0.3"
+github.com/gobwas/glob="v0.2.3"
+github.com/goccy/go-yaml="v1.19.1"
+github.com/gohugoio/go-i18n/v2="v2.1.3-0.20251018145728-cfcc22d823c6"
+github.com/gohugoio/go-radix="v1.2.0"
+github.com/gohugoio/hashstructure="v0.6.0"
+github.com/gohugoio/httpcache="v0.8.0"
+github.com/gohugoio/hugo-goldmark-extensions/extras="v0.5.0"
+github.com/gohugoio/hugo-goldmark-extensions/passthrough="v0.3.1"
+github.com/gohugoio/locales="v0.14.0"
+github.com/gohugoio/localescompressed="v1.0.1"
+github.com/google/go-cmp="v0.7.0"
+github.com/gorilla/css="v1.0.1"
+github.com/gorilla/websocket="v1.5.3"
+github.com/hairyhenderson/go-codeowners="v0.7.0"
+github.com/hashicorp/golang-lru/v2="v2.0.7"
+github.com/jdkato/prose="v1.2.1"
+github.com/josharian/intern="v1.0.0"
+github.com/kr/pretty="v0.3.1"
+github.com/kr/text="v0.2.0"
+github.com/kyokomi/emoji/v2="v2.2.13"
+github.com/mailru/easyjson="v0.7.7"
+github.com/makeworld-the-better-one/dither/v2="v2.4.0"
+github.com/marekm4/color-extractor="v1.2.1"
+github.com/mattn/go-colorable="v0.1.13"
+github.com/mattn/go-isatty="v0.0.20"
+github.com/mattn/go-runewidth="v0.0.19"
+github.com/microcosm-cc/bluemonday="v1.0.27"
+github.com/mitchellh/mapstructure="v1.5.1-0.20231216201459-8508981c8b6c"
+github.com/mohae/deepcopy="v0.0.0-20170929034955-c48cc78d4826"
+github.com/muesli/smartcrop="v0.3.0"
+github.com/niklasfasching/go-org="v1.9.1"
+github.com/oasdiff/yaml3="v0.0.0-20250309153720-d2182401db90"
+github.com/oasdiff/yaml="v0.0.0-20250309154309-f31be36b4037"
+github.com/olekukonko/cat="v0.0.0-20250911104152-50322a0618f6"
+github.com/olekukonko/errors="v1.1.0"
+github.com/olekukonko/ll="v0.1.3"
+github.com/olekukonko/tablewriter="v1.1.2"
+github.com/pbnjay/memory="v0.0.0-20210728143218-7b4eea64cf58"
+github.com/pelletier/go-toml/v2="v2.2.4"
+github.com/perimeterx/marshmallow="v1.1.5"
+github.com/pkg/browser="v0.0.0-20240102092130-5ac0b6a4141c"
+github.com/pkg/errors="v0.9.1"
+github.com/rogpeppe/go-internal="v1.14.1"
+github.com/russross/blackfriday/v2="v2.1.0"
+github.com/sass/dart-sass/compiler="1.97.1"
+github.com/sass/dart-sass/implementation="1.97.1"
+github.com/sass/dart-sass/protocol="3.2.0"
+github.com/spf13/afero="v1.15.0"
+github.com/spf13/cast="v1.10.0"
+github.com/spf13/cobra="v1.10.2"
+github.com/spf13/fsync="v0.10.1"
+github.com/spf13/pflag="v1.0.9"
+github.com/tdewolff/minify/v2="v2.24.8"
+github.com/tdewolff/parse/v2="v2.8.5"
+github.com/tetratelabs/wazero="v1.10.1"
+github.com/webmproject/libwebp="v1.6.0"
+github.com/woodsbury/decimal128="v1.3.0"
+github.com/yuin/goldmark-emoji="v1.0.6"
+github.com/yuin/goldmark="v1.7.13"
+go.uber.org/automaxprocs="v1.5.3"
+go.yaml.in/yaml/v3="v3.0.4"
+golang.org/x/crypto="v0.46.0"
+golang.org/x/image="v0.34.0"
+golang.org/x/mod="v0.31.0"
+golang.org/x/net="v0.48.0"
+golang.org/x/sync="v0.19.0"
+golang.org/x/sys="v0.39.0"
+golang.org/x/text="v0.32.0"
+golang.org/x/tools="v0.40.0"
+google.golang.org/protobuf="v1.36.10"
+gopkg.in/yaml.v3="v3.0.1"
+rsc.io/qr="v0.2.0"
+software.sslmate.com/src/go-pkcs12="v0.2.0"
+```
 </details>
-
-<details>
-<summary><b>Can I import my existing publications?</b></summary>
-Yes. Drop a BibTeX file and publication pages are generated automatically with proper citations, metadata, and links.
-</details>
-
-<details>
-<summary><b>Can I host for free?</b></summary>
-Yes. GitHub Pages, Netlify, Vercel, and Cloudflare Pages all have free tiers for static sites.
-</details>
-
-<details>
-<summary><b>Can I migrate my content later?</b></summary>
-Yes. Your site is just Markdown files in a folder. Copy them anywhere.
-</details>
-
-<details>
-<summary><b>What's Hugo Chat?</b></summary>
-An AI assistant trained on Hugo and HugoBlox docs. Describe what you want and it generates the right pages with correct front matter. <a href="https://hugo.chat/?utm_source=github&utm_medium=readme&utm_content=faq_academic-cv">Free to try.</a>
-</details>
-
-<details>
-<summary><b>Can I cancel Pro anytime?</b></summary>
-Yes. No questions asked.
-</details>
-
----
-
-<h2 align="center">🚀 Ready to launch?</h2>
-
-<p align="center">
-  Deploy in 60 seconds. Customize with AI. Own it as Markdown forever.
-</p>
-
-<p align="center">
-  <a href="https://hugoblox.com/templates/academic-cv?utm_source=github&utm_medium=readme&utm_content=cta_final"><b>Deploy Academic CV — free</b></a>
-  &nbsp;&nbsp;|&nbsp;&nbsp;
-  <a href="https://hugo.chat/?utm_source=github&utm_medium=readme&utm_content=cta_final_academic-cv"><b>Customize with AI</b></a>
-</p>
-
----
-
-## Community & Support
-
-- 💬 [**Discord**](https://discord.gg/z8wNYzb) — ask questions, share your site
-- 📚 [**Docs**](https://docs.ownable.dev/?utm_source=github&utm_medium=readme&utm_content=community_academic-cv)
-- ⭐ [**Star HugoBlox**](https://github.com/HugoBlox/kit) — help others find it
-- 🐦 [**Follow on X**](https://x.com/GoOwnable)
-
-### Sponsors
-
-[**❤️ Sponsor on GitHub**](https://github.com/sponsors/gcushen) | [**🏢 Become a Partner**](https://github.com/sponsors/gcushen)
-
----
-
-Copyright 2016-present [**Lore Labs**](https://lore.tech/?utm_source=github&utm_medium=readme).
-Released under the [MIT License](./LICENSE.md).
-
-<p align="center">
-  <sub>HugoBlox is a trademark of Lore Labs.</sub>
-</p>
-
-<!--START_SECTION:news-->
-<!--END_SECTION:news-->
