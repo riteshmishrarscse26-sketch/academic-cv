@@ -48,13 +48,13 @@ Before discussing the attack, it is useful to look at the usual ML training proc
 
 ```text
 Training data
-     ↓
+     ->
 ML model
-     ↓
+     ->
 Optimization
-     ↓
+     ->
 Learned model parameters
-     ↓
+     ->
 Predictions
 ```
 
@@ -64,19 +64,19 @@ The attacker already has the trained model and instead searches for an input tha
 
 ```text
 Frozen trained model
-        ↓
+         ->
 Choose target class
-        ↓
+         ->
 Initialize input
-        ↓
+         ->
 Calculate model confidence
-        ↓
+         ->
 Calculate gradient with respect to input
-        ↓
+         ->
 Update input pixels
-        ↓
+         ->
 Repeat
-        ↓
+         ->
 Reconstructed class prototype
 ```
 
@@ -105,9 +105,9 @@ Conceptually:
 
 ```text
 28 × 28 image
-      ↓
+       ->
 Flatten
-      ↓
+       ->
 784-dimensional vector
 ```
 
@@ -121,14 +121,14 @@ It has one fully connected layer only:
 
 ```text
 784 input pixels
-       ↓
+        ->
 Fully connected linear layer
 nn.Linear(784, 10)
-       ↓
+        ->
 10 class logits
-       ↓
+        ->
 Softmax
-       ↓
+        ->
 Probability for each digit
 ```
 
@@ -177,25 +177,25 @@ The procedure can be described as follows:
 
 ```text
 x initialization
-    ↓
+     ->
 Forward pass using fixed model
-    ↓
+     ->
 Target-class log probability calculation
-    ↓
+     ->
 Gradient computation with respect to x
-    ↓
+     ->
 x update
-    ↓
+     ->
 Pixel value clipping to the range [0, 1]
-    ↓
+     ->
 Repeat
 ```
 
 The key point here is:
 
 ```text
-model weights → FROZEN
-input pixels  → UPDATED
+model weights  -> FROZEN
+input pixels   -> UPDATED
 ```
 
 ---
@@ -209,7 +209,7 @@ For example:
 ```text
 Training:
 
-input → model → loss
+input  -> model  -> loss
           ↓
       update weights
 ```
@@ -217,9 +217,9 @@ input → model → loss
 Model inversion reverses this relationship:
 
 ```text
-model weights → frozen
+model weights  -> frozen
 
-input → model → target confidence
+input  model -> target confidence
   ↑
 update input pixels
 ```
@@ -244,11 +244,11 @@ For every digit from **0 to 9**, I performed:
 The attacker therefore generates ten reconstructed images:
 
 ```text
-Target 0 → reconstructed 0
-Target 1 → reconstructed 1
-Target 2 → reconstructed 2
+Target 0 -> reconstructed 0
+Target 1 -> reconstructed 1
+Target 2 -> reconstructed 2
 ...
-Target 9 → reconstructed 9
+Target 9 -> reconstructed 9
 ```
 
 ---
@@ -299,7 +299,7 @@ What it reveals is the type of information encoded by the model's learned decisi
 
 ---
 
-# A Class Prototype — Not a Training Example
+# A Class Prototype - Not a Training Example
 
 An important observation from this experiment is that the reconstruction should **not** be interpreted as recovery of a specific MNIST training image.
 
@@ -344,11 +344,11 @@ The attacker receives relatively little information.
 But suppose the API returns:
 
 ```text
-0 → 0.001
-1 → 0.002
-2 → 0.003
+0 -> 0.001
+1 -> 0.002
+2 -> 0.003
 ...
-7 → 0.91
+7 -> 0.91
 ...
 ```
 
@@ -368,17 +368,17 @@ Conceptually:
 
 ```text
 Input image
-     ↓
+     ->
 Frozen classifier
-     ↓
+     ->
 Class probabilities
-     ↓
+     ->
 Target class confidence
-     ↓
+     ->
 Gradient signal
-     ↓
+     ->
 Modify input
-     ↓
+     ->
 Target confidence increases
 ```
 
@@ -405,7 +405,7 @@ There are some of possible explanations.
 MNIST contains:
 
 ```text
-28 × 28 = 784
+28 * 28 = 784
 ```
 
 input dimensions.
@@ -462,10 +462,10 @@ It all boils down to the nature of classes.
 For MNIST:
 
 ```text
-class 0 → many different people writing 0
-class 1 → many different people writing 1
+class 0 -> many different people writing 0
+class 1 -> many different people writing 1
 ...
-class 9 → many different people writing 9
+class 9 -> many different people writing 9
 ```
 
 And so the target class would cover a huge number of examples.
@@ -473,9 +473,9 @@ And so the target class would cover a huge number of examples.
 But in the case of identity classification:
 
 ```text
-class A → person A
-class B → person B
-class C → person C
+class A -> person A
+class B -> person B
+class C -> person C
 ```
 
 
@@ -508,11 +508,11 @@ Instead:
 
 ```text
 Freeze model
-    ↓
+    ->
 Optimize input
-    ↓
+    ->
 Increase target confidence
-    ↓
+    ->
 Recover class prototype
 ```
 
@@ -556,21 +556,6 @@ What information does my model reveal?
 
 ---
 
-# Reproducibility
-
-This experiment was implemented using:
-
-* Python
-* PyTorch
-* MNIST
-* Gradient-based optimization
-* A linear `nn.Linear(784, 10)` classifier
-
-The attack was implemented directly rather than relying on an external model inversion library.
-
-This makes the experiment useful as a small educational reproduction of the underlying mechanism.
-
----
 
 # Key Takeaways
 
@@ -608,20 +593,20 @@ MNIST
 10,000 test images
 28 × 28 pixels
 
-        ↓
+        ->
 
 Target Model
 Linear Softmax Classifier
 nn.Linear(784, 10)
 
-        ↓
+        ->
 
 Training
 5 epochs
 SGD
 91.79% test accuracy
 
-        ↓
+        ->
 
 Model Inversion
 10 target classes
@@ -629,18 +614,18 @@ Model Inversion
 Input pixels optimized
 Model weights frozen
 
-        ↓
+        ->
 
 Output
 10 reconstructed class prototypes
 
-        ↓
+        ->
 
 Observation
 Recognizable coarse structures
 but noisy reconstructions
 
-        ↓
+        ->
 
 Privacy Insight
 Model parameters + confidence information
