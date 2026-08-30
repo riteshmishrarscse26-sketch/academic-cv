@@ -1,441 +1,516 @@
+---
+title: "Recreating a Model Inversion Attack on Handwritten Digits"
+date: 2026-08-22
+authors:
+  - admin
+tags:
+  - Model Inversion
+  - Machine Learning
+  - MNIST
+  - PyTorch
+  - Trustworthy AI
+categories:
+  - Machine Learning Privacy
+summary: "A hands-on reproduction of Fredrikson et al.'s model inversion attack using a linear softmax classifier trained on MNIST."
+image:
+  caption: "Model inversion results reconstructed from a linear softmax classifier trained on MNIST."
+  focal_point: "Center"
+---
 
-Ritesh Mishra
+# Recreating a Model Inversion Attack on Handwritten Digits
 
-    Home
-    About
-    Research
-    Blog
-    Experience
-    CV
+*A hands-on reproduction of Fredrikson et al.'s model inversion attack (CCS 2015), using the real MNIST dataset, a linear softmax classifier, and a from-scratch PyTorch implementation.*
 
-On this page
+---
 
-    Why Does Model Inversion Matter? 
+## Why Model Inversion Matters
 
-    Data Set 
+Machine learning models do not simply learn a mapping from inputs to labels.
 
-    Goal of the Attack 
+During training, the parameters of a model absorb statistical information about the data used to train it. In some situations, this information can be exploited by an attacker.
 
-    What do the Reconstructed Images Tell Us?
-    Digit 0
-    Digit 1
-    Other digits 
+This creates an important privacy question:
 
-    1. Input is high dimensional 
-    2. The model is not perfectly accurate 
-    3. No convolutions are used for inductive bias 
+> **Can an attacker recover meaningful information about training data by querying a trained machine learning model?**
 
-    1. Information is present in the model parameters 
-    2. Inputs can be optimized using a static model 
-    3. Confidence scores add to the attack potential 
+One class of attacks that explores this question is **model inversion**.
 
-    Output the class label only 
+Fredrikson, Jha, and Ristenpart introduced model inversion attacks that exploit confidence information returned by a trained classifier. Their work demonstrated that an attacker can optimize an input toward a target class and reconstruct a representative example of that class without directly accessing the original training data.
 
-   Experiments Summary
+The key idea is surprisingly simple:
 
-Inversion of Model Using Model Inversion Attack on Handwritten Digits
-Aug 22, 2026·
-admin
-· 13 min read
-Inversion of Model Using Model Inversion Attack on Handwritten Digits
+> **Instead of changing the model parameters, change the input.**
 
-The recreation of a model inversion attack described by Fredrikson et al. on handwritten digits using the real MNIST dataset, a linear softmax classifier and a from scratch PyTorch implementation of the attack.
-Why is Model Inversion Important?
+The model is kept frozen. The attacker treats the input itself as the optimization variable and searches for an input that maximizes the model's confidence for a chosen target class.
 
-Learning machine learning models does not consist of only learning a function which maps input to output.
+---
 
-Statistical properties about the training data get embedded into the parameters of the model through its training process. This statistical information can sometimes be used for malicious purposes.
+# Background
 
-And hence an important privacy question arises.
+In ordinary machine learning training, the process looks roughly like this:
 
-Can one extract information from training data through queries to a trained machine learning model?
-
-Model inversion is a type of attack that falls under this category.
-
-Model inversion attacks were pioneered by Fredrikson, Jha and Ristenpart where they exploit confidence information provided by a trained classifier.
-
-The core concept, however, is unexpectedly straightforward:
-
-    Instead of modifying the model parameters, modify the input.
-
-Model remains static. Attacker considers the input as the optimization variable and finds an input value maximizing the confidence of the model for the selected target class.
-Introduction
-
-Regular machine learning training works approximately as follows:
-
+```text
 Training data
-      ↓
+     ↓
 Machine learning model
-      ↓
+     ↓
 Optimization
-      ↓
-Model parameters
-      ↓
+     ↓
+Learned model parameters
+     ↓
 Predictions
+```
 
-In case of model inversion, workflow is different.
+In model inversion, the direction is different.
 
-The attacker possesses the trained model and finds an input resulting in a particular output value:
+The attacker already has the trained model and instead searches for an input that produces a desired prediction:
 
-Trained model
-         ↓
-Select target class
-         ↓
-Input initialization
-         ↓
-Compute model confidence
-         ↓
-Compute gradient w.r.t. input
-         ↓
-Modify input pixels
-         ↓
+```text
+Frozen trained model
+        ↓
+Choose target class
+        ↓
+Initialize input
+        ↓
+Calculate model confidence
+        ↓
+Calculate gradient with respect to input
+        ↓
+Update input pixels
+        ↓
 Repeat
-         ↓
-Class prototype reconstruction
+        ↓
+Reconstructed class prototype
+```
 
+The important distinction is that **the model weights are not being updated**.
 
-The key point here is that there is no updating of the model weights.
+Only the pixels of the synthetic input are optimized.
 
-It is only the pixels of the artificial input that are optimized.
-What Was Modified from the Original Experiment
+---
 
-As compared to the original experiment by Fredrikson et al., which studied the possibility of getting sensitive information about people’s identities through model inversion, the present work created an experiment of a simpler design and structure.
+# What I Changed
 
-It includes:
+The original Fredrikson et al. work focused on settings where model inversion could reveal sensitive information about individual identities.
 
-    Real MNIST handwritten digit dataset
-    Linear softmax classifier
-    PyTorch
-    Gradient ascent attack designed from scratch
-    Input images of 28 × 28 resolution in grayscale
-    Target classes of 0-9 digits
+Instead of reproducing the original experimental setup exactly, I built a smaller and more transparent experiment.
 
-Such approach facilitates the understanding of the process of the attack.
-Dataset
+The experiment uses:
 
-For the experiment, the MNIST handwritten digit dataset was used.
+* The real MNIST handwritten digit dataset
+* A linear softmax classifier
+* PyTorch
+* A from-scratch gradient-ascent attack
+* 28 × 28 grayscale input images
+* Ten target classes corresponding to digits 0–9
 
-The dataset includes:
+This makes it easier to understand exactly what the attack is doing.
 
-    60,000 training images
-    10,000 testing images
-    Images of 28 × 28 pixel resolution
-    10 classes
-    Digits 0 to 9
-    784 inputs per image
+---
 
-Each image is represented as a vector that consists of 784 pixels and is taken from a 28 × 28 matrix.
+## Dataset
+
+I used the standard **MNIST handwritten digit dataset**.
+
+The dataset contains:
+
+* **60,000 training images**
+* **10,000 test images**
+* **28 × 28 pixel resolution**
+* **10 classes**
+* Digits **0 through 9**
+* **784 input values** per image
+
+Each image is converted from a 28 × 28 matrix into a vector containing 784 pixel values.
+
 Conceptually:
 
-28×28 image
-     ↓
+```text
+28 × 28 image
+      ↓
 Flatten
-     ↓
+      ↓
 784-dimensional vector
+```
 
-The attack does not make use of individual MNIST images during the process of reconstruction.
+The attack does not directly use individual MNIST images during reconstruction.
 
-Rather, it exploits the trained classifier.
-Model
+Instead, it uses the trained classifier.
 
-The model that we are using as our target is relatively simple.
+---
 
-It is composed of a single layer which is fully-connected:
+# Model
 
-784 pixels in the input
-        ↓
+The target classifier is intentionally simple.
+
+It consists of a single fully connected layer:
+
+```text
+784 input pixels
+       ↓
 Linear layer
 nn.Linear(784, 10)
-        ↓
-10 classes
-        ↓
+       ↓
+10 class logits
+       ↓
 Softmax
-        ↓
+       ↓
 Digit probabilities
+```
 
-There are no convolutional layers and no hidden layers either.
+There are no convolutional layers and no hidden layers.
 
-Consequently, the representation capacity of this model is quite limited compared to the average CNN model for MNIST classification tasks.
+The model therefore has substantially less representational capacity than a typical CNN used for MNIST classification.
 
-It is useful since there are no superfluous architectural elements complicating our understanding of the model inversion process.
-Training the Target Model
+This is useful because it allows us to study the model inversion mechanism without introducing unnecessary architectural complexity.
 
-The model was trained for 5 epochs using plain stochastic gradient descent.
+---
 
-Test accuracy of the trained model is:
+# Training the Target Model
 
-91.79%
+The model was trained for **5 epochs** using plain stochastic gradient descent.
 
-It is far worse than 98–99% typical for MNIST recognition by a convolutional neural network.
+The resulting test accuracy was:
 
-But that is exactly what is to be expected.
+**91.79%**
 
-In fact, a linear classifier does not model spatial relationships between neighboring pixels.
+This is considerably lower than the approximately 98–99% accuracy commonly achieved by convolutional neural networks on MNIST.
 
-Hence, its representation capacity of handwritten digits is poor.
+That difference is expected.
 
-Nevertheless, there is an important question to address here:
+A linear classifier does not explicitly model local spatial relationships between neighboring pixels. It therefore has a much weaker representation of handwritten digit structure.
 
-    Is there sufficient information stored in the trained linear classifier for successful model inversion?
+However, the important question is:
 
-The experiment shows that there is.
-The Model Inversion Attack
+> **Does a weak linear classifier still contain enough information for model inversion?**
 
-After training, the model parameters remain unchanged.
+The experiment shows that it does.
 
-For each target digit class c, I generate a synthetic image.
+---
 
-This image does not represent any actual handwritten digit.
+# The Model Inversion Attack
 
-Then the attacker attempts to optimize the image so that the trained classifier is more and more confident in the classification of the image into the chosen target class.
+After training, the model parameters are frozen.
 
+For each target digit class `c`, I initialize an artificial image.
 
-Optimization is done directly on the pixels.
+The initial image contains no real handwritten digit.
 
-Attack Goal
+The attacker then optimizes this image so that the trained classifier becomes increasingly confident that the image belongs to the selected target class.
 
-For a particular target class c, the attack will maximize the probability of the target class.
+The optimization is performed directly over the pixels.
 
-In my case, I optimize the negative log-probability with an additional L2 term:
+---
 
+## Attack Objective
+
+For a target class `c`, the attack maximizes the target class probability.
+
+In implementation, I optimize the negative log-probability together with a small L2 regularization term:
+
+```text
 loss =
     -log_softmax(model(x))[c]
     + l2 * ||x||²
+```
 
-This optimization process looks like this:
+The optimization can be viewed as:
 
-Start with x
+```text
+Initialize x
     ↓
-Forward pass through the frozen model
+Forward pass through frozen model
     ↓
-Compute log probability of the target class
+Calculate target-class log probability
     ↓
-Compute gradient w.r.t x
+Calculate gradient with respect to x
     ↓
 Update x
     ↓
-Clamp pixel values into [0, 1]
+Clip pixel values to [0, 1]
     ↓
-Loop
+Repeat
+```
 
-Here is the critical point:
+The important detail is:
 
-Model parameters → FROZEN
-Input pixels    → UPDATED
+```text
+model weights → FROZEN
+input pixels  → UPDATED
+```
 
-Why do Optimization on the Input?
+---
 
-Normally, the gradients are computed in order to update the model parameters.
+# Why Optimize the Input?
 
-For instance:
+Normally, gradients are used to update model parameters.
 
+For example:
+
+```text
 Training:
 
 input → model → loss
           ↓
-      weight update
+      update weights
+```
 
-With model inversion, the process works the other way round:
+Model inversion reverses this relationship:
 
-model weights → fixed
+```text
+model weights → frozen
 
 input → model → target confidence
   ↑
-pixel update
+update input pixels
+```
 
-The gradient indicates how changing a pixel changes the model’s confidence in the chosen class.
+The gradient tells the attacker how changing each pixel affects the model's confidence in the selected class.
 
-In sufficient number of iterations, the input starts resembling the prototype of the target class.
-Attack Setup
+After enough iterations, the input begins to resemble a prototype of the target class.
 
-For each digit between 0 and 9, I carried out:
+---
 
-   2,000 optimization iterations
-   Gradient-based optimization
-   Pixel values limited to [0, 1]
-   Small L2 regularization
-   Fixed classifier parameters
-   Separate image reconstruction for each class
+# Attack Configuration
 
-So the attacker will have ten reconstructed images:
+For every digit from **0 to 9**, I performed:
 
+* 2,000 optimization iterations
+* Gradient-based optimization
+* Pixel values constrained to `[0, 1]`
+* Small L2 regularization
+* Frozen classifier parameters
+* Independent reconstruction for each target class
 
+The attacker therefore generates ten reconstructed images:
+
+```text
 Target 0 → reconstructed 0
 Target 1 → reconstructed 1
 Target 2 → reconstructed 2
 ...
 Target 9 → reconstructed 9
+```
 
-Results
+---
 
-The following figure presents the reconstructions obtained from the model training process.
+# Results
 
-The adversary does not take any real MNIST image as the reconstruction target.
+The following figure shows the reconstructed images generated entirely from the trained model.
 
-Model Inversion on Real MNIST with Linear Softmax Classifier
+The attacker does not use a real MNIST image as the reconstruction target.
 
-Figure 1. Results of the model inversion attack on all MNIST classes. The images were reconstructed through the optimization of the pixels against the fixed linear classifier.
-What Do The Reconstructions Reveal?
+![Model inversion results on real MNIST using a linear softmax classifier](mnist_inversion_results.png)
 
-The reconstructions do not have the same level of recognition of each digit.
+*Figure 1. Model inversion results for all ten MNIST classes. Each image is reconstructed by optimizing the input pixels against the frozen linear classifier.*
 
-There are several classes that demonstrate obvious coarse structure.
+---
 
-For instance:
-Digit 0
+## What Do the Reconstructions Show?
 
-The reconstruction reveals a ring-like structure.
+The results are not equally recognizable for every digit.
 
-This corresponds to the expected shape of a handwritten zero digit.
-Digit 1
+Some classes show clear coarse structure.
 
-The reconstruction includes an evident vertical component.
+For example:
 
-It matches the known shape of the digit.
-Other digits
+### Digit 0
 
-A number of other reconstructions are also quite noisy.
+The reconstruction contains a visible ring-like structure.
 
-They have obvious patterns characteristic of the target class, yet they do not readily appear to be a certain handwritten digit.
+This is consistent with the broad shape expected for a handwritten zero.
 
-And this matters.
+### Digit 1
 
-The point of model inversion is not to obtain an ideal photo-like reconstruction of something.
+The reconstruction contains a strong vertical component.
 
-What this experiment shows us is what kind of data the model uses in order to classify the input according to the learned decision boundary.
-Class Prototype vs Training Sample
+Again, this corresponds to the characteristic structure of the digit.
 
-Probably the most important thing to keep in mind regarding this experiment is that the reconstructed image is not necessarily a certain training example from the MNIST database.
+### Other digits
 
-MNIST includes lots of samples of each class, and there are plenty of different hand-written examples of digit 7.
+Several other reconstructions are considerably noisier.
 
-Thus, when an attacker poses the question:
+They contain visible patterns associated with the target class, but they are harder to identify immediately as a specific handwritten digit.
 
+This difference is important.
+
+Model inversion does not necessarily produce a clean photograph-like reconstruction.
+
+What it reveals is the type of information encoded by the model's learned decision boundary.
+
+---
+
+# A Class Prototype — Not a Training Example
+
+One of the most important observations from this experiment is that the reconstruction should **not** be interpreted as recovery of a specific MNIST training image.
+
+MNIST contains many different examples of each digit.
+
+For example, the training set contains thousands of different handwritten versions of digit `7`.
+
+Therefore, when the attacker asks:
+
+```text
 "What does the model think a 7 should look like?"
+```
 
-the optimization process will not necessarily produce a single training example.
+the optimization is not necessarily going to recover one particular training image.
 
-Instead, the optimization process is more likely to come up with the following:
+Instead, it tends toward a representation that strongly activates the classifier for class `7`.
 
-a class prototype
+The result is better interpreted as a:
 
-and not a:
+> **class prototype**
 
-    training sample
+rather than:
 
-This is especially true for discussions of privacy.
-Why the Attack is Possible
+> **recovered training sample**
 
-The attack hinges on the information provided by the model.
+This distinction is particularly important when discussing privacy.
 
-If the API reveals:
+---
 
+# Why the Attack Is Possible
+
+The attack depends heavily on the information exposed by the model.
+
+Suppose an API returns only:
+
+```text
 Prediction: 7
+```
 
-The attacker gets limited information.
+The attacker receives relatively little information.
 
-However, the API reveals:
+But suppose the API returns:
 
+```text
 0 → 0.001
 1 → 0.002
 2 → 0.003
 ...
 7 → 0.91
 ...
+```
 
-In this case, the attacker gets a lot more information about the way the model reacts to perturbations to the input data.
+Now the attacker has considerably more information about how the model responds to changes in the input.
 
-These confidence values give a much better optimization signal.
+Those confidence values provide a much stronger optimization signal.
 
-This is why confidence information can be used to violate privacy.
-The Part Played By Confidence Scores
+This is why confidence information can become a privacy concern.
 
-The attack is made possible by the fact that the classifier reveals confidence information in real numbers.
+---
 
+# The Role of Confidence Scores
 
-Conceptually, the process is as follows:
+The attack exploits the fact that the classifier exposes real-valued confidence information.
 
+Conceptually:
+
+```text
 Input image
-      ↓
+     ↓
 Frozen classifier
-      ↓
+     ↓
 Class probabilities
-      ↓
-Confidence for target class
-      ↓
-Optimization signal
-      ↓
-Perturb input
-      ↓
-Boost confidence for target class
-The process is repeated until the generated input is highly associated with the target class.
+     ↓
+Target-class confidence
+     ↓
+Gradient signal
+     ↓
+Modify input
+     ↓
+Higher target confidence
+```
 
-Consequently, the following security takeaway is relevant:
+The process repeats until the generated input becomes strongly associated with the target class.
 
-   The output interface of a machine learning model may influence its privacy vulnerability.
+Therefore, an important security lesson is:
 
-While the model might be left unaltered, making it more informative about its predictions may significantly increase the feasibility of certain attacks.
-Why the Linear Model Is Interesting
+> **The output interface of a machine learning model can affect its privacy risk.**
 
-Upon initial consideration, the linear classifier would appear to be too primitive to conduct an interesting privacy experiment.
+The model itself may remain unchanged, while exposing more detailed prediction information can make certain attacks substantially easier.
 
-Nevertheless, this simplicity comes in handy.
+---
 
-The classifier takes on the following form:
+# Why the Linear Model Is Interesting
 
+At first glance, a linear classifier may seem too simple for a meaningful privacy experiment.
+
+However, its simplicity is actually useful.
+
+The classifier has the form:
+
+```text
 z = Wx + b
+```
 
 where:
 
-      x - the input image
-      W - the learned weight matrix
-      b - the bias
-      z - class logits
-Then, the distribution is derived using softmax:
+* `x` is the input image
+* `W` is the learned weight matrix
+* `b` is the bias
+* `z` contains the class logits
 
-p(y=c|x)=softmax(Wx+b)c
+The probability distribution is then obtained through softmax:
 
-Since there is a linear model up until softmax, the connection between input and the logits is simple.
+```text
+p(y=c | x) = softmax(Wx + b)c
+```
 
-Therefore, the gradient w.r.t the input can be calculated without any issues.
+Because the model is linear before the softmax operation, the relationship between the input and the class logits is straightforward.
 
-There is not an entire deep network with multiple nonlinear layers to go through.
-Why Are the Reconstructions Noisy?
+The gradient with respect to the input can therefore be calculated directly.
 
-One interesting finding from this experiment is that the reconstructed images turn out relatively noisy.
+There is no deep network with many nonlinear layers to traverse.
 
-There are several possible reasons for that.
-1. High-dimensional input
+---
 
-MNIST has:
+# Why the Reconstructions Are Noisy
 
-28×28=784
+An interesting result from this experiment is that the reconstructed images are relatively noisy.
 
-dimensions in the input.
+There are several possible explanations.
 
-So, the optimizer is free to optimize 784 pixel dimensions independently of each other.
+## 1. High-dimensional input
 
-Without having an explicit image prior or some powerful spatial regularization, optimization will make use of weird configurations of pixels, which increase the target class score.
-2. Low accuracy of the model
+MNIST contains:
 
-Classifier has:
+```text
+28 × 28 = 784
+```
 
-91.79% accuracy on test set
+input dimensions.
 
-It is much lower than what is typical for MNIST CNN.
+The optimizer therefore has 784 independent pixel dimensions it can manipulate.
 
-Thus, the learned decision boundary reflects poorly the true distribution of handwritten digits.
+Without an explicit image prior or strong spatial regularization, the optimization can exploit unusual pixel configurations that increase the target class score.
 
-And when the attack is being performed against that boundary, the prototype inherits that weakness.
+---
 
-  3. The lack of convolutional inductive bias
+## 2. Limited model accuracy
 
-CNNs implicitly take advantage of local spatial relations.
+The classifier achieves:
 
-The linear classifier doesn't.
+**91.79% test accuracy**
 
-For instance, a CNN may learn hierarchical representations like this:
+This is substantially lower than a typical MNIST CNN.
 
+The learned decision boundary therefore provides a less accurate representation of the true distribution of handwritten digits.
+
+When the attacker optimizes against this decision boundary, the resulting prototype can inherit those weaknesses.
+
+---
+
+## 3. No convolutional inductive bias
+
+CNNs naturally exploit local spatial relationships.
+
+A linear classifier does not.
+
+For example, a CNN can learn useful structures such as:
+
+```text
 edges
  ↓
 strokes
@@ -444,200 +519,259 @@ curves
  ↓
 digit parts
  ↓
-whole digit
+complete digit
+```
 
-Linear model learns no such hierarchy.
+The linear model does not build such a hierarchy.
 
-Hence, inversion results of the linear model may have less natural spatial structure.
-Comparison with a CNN
+Consequently, its inversion results can contain less natural spatial structure.
 
-The current model is intentionally much weaker compared to CNN-based implementation from related practical experiments.
+---
 
-The differences are:
-Property 	Linear Model 	CNN
-Architecture 	Single linear layer 	Many nonlinear layers
-Spatial structure 	Less 	More
-MNIST accuracy 	91.79% in this experiment 	Usually significantly higher
-Inversion surface 	Simple 	Complex
-Reconstruction 	Noisy 	May be more structured
-Computational cost 	Lower 	Higher
+# Comparison With a CNN
 
-The objective of this experiment was to prove that the fundamental inversion process works with even the simplest classifier.
-An Important Privacy Restriction
+The model used here is deliberately weaker than the CNN-based implementation described in related practical demonstrations.
 
-This particular MNIST experiment serves just to demonstrate the inversion process, but it mustn't be taken for an identity recovery.
-  
-The explanation lies in the class composition.
+The difference can be summarized as:
+
+| Property          | Linear Model              | CNN                         |
+| ----------------- | ------------------------- | --------------------------- |
+| Architecture      | Single linear layer       | Multiple nonlinear layers   |
+| Spatial structure | Weak                      | Strong                      |
+| MNIST accuracy    | 91.79% in this experiment | Typically much higher       |
+| Inversion surface | Relatively simple         | More complex                |
+| Reconstruction    | Noisier                   | Potentially more structured |
+| Computation       | Cheap                     | More expensive              |
+
+The purpose of this experiment is not to claim that the linear model produces a stronger attack.
+
+Instead, it demonstrates that the fundamental inversion mechanism can still operate even with a very simple classifier.
+
+---
+
+# An Important Privacy Limitation
+
+The MNIST experiment is useful for demonstrating the mechanism, but it should not be interpreted as equivalent to an identity-recovery attack.
+
+The reason is the class structure.
 
 For MNIST:
 
-class 0 -> multiple people writing 0
-class 1 -> multiple people writing 1
+```text
+class 0 → many different people writing 0
+class 1 → many different people writing 1
 ...
-class 9 -> multiple people writing 9
+class 9 → many different people writing 9
+```
 
-Thus, the target class is composed of a large number of samples.
+The target class therefore represents a large population of examples.
 
-While for identity classification scenario:
+In contrast, in an identity classification scenario:
 
-class A -> person A
-class B -> person B
-class C -> person C
+```text
+class A → person A
+class B → person B
+class C → person C
+```
 
-As a result, if each class corresponds to a single individual, the reconstruction of the class prototype will provide highly identifiable data.
+If the model learns one class per individual, reconstructing the class prototype can reveal much more directly identifiable information.
 
-That is why the privacy risks associated with model inversion largely depend on:
+This is why the privacy implications of model inversion depend strongly on:
 
-    Dataset
-    Class definition
-    Architecture of the model
-    Information leaked through the API
-    Query access of the attacker
-    Regularization and optimization procedure
+* The dataset
+* The class definition
+* The model architecture
+* The information exposed by the API
+* The attacker's query access
+* The regularization and optimization strategy
 
-What This Experiment Actually Proves
+---
 
-The experiment shows three key concepts.
-1. Model parameters include information
+# What This Experiment Actually Demonstrates
 
-The classifier parameters contain information about the statistical structure learned from MNIST.
-   
-2. Optimization of inputs based on a frozen model
+The experiment demonstrates three important ideas.
 
-There is no requirement for the attacker to retrain the classifier.
+### 1. Model parameters contain information
 
-Rather:
+The classifier's parameters encode statistical structure learned from MNIST.
 
-Frozen model
-     ↓
-Optimization of input
-     ↓
+The attacker does not need direct access to the original training images to obtain a meaningful signal.
+
+### 2. Inputs can be optimized against a frozen model
+
+The attacker does not need to retrain the classifier.
+
+Instead:
+
+```text
+Freeze model
+    ↓
+Optimize input
+    ↓
 Increase target confidence
-     ↓
-Recovering of class prototype
+    ↓
+Recover class prototype
+```
 
-3. Confidence scores make attacks more effective
+### 3. Confidence information can increase attack capability
 
-With more output interface, there is more information available to the attacker about how the model works.
+A richer output interface gives the attacker more information about the model's behavior.
 
-This implies that the confidence scores should be taken into account in ML models that are privacy-sensitive.
-Potential Countermeasures
+This makes confidence scores an important consideration in privacy-sensitive ML systems.
 
-There were several methods proposed by Fredrikson et al. to reduce the use of confidence information.
+---
 
-Potential countermeasures can be:
-Only return the predicted class
+# Potential Countermeasures
 
-Instead of returning the whole probability vector:
+Fredrikson et al. discussed several approaches for reducing the usefulness of confidence information.
 
+Possible defenses include:
+
+### Return only the predicted class
+
+Instead of returning the complete probability vector:
+
+```text
 [0.01, 0.02, ..., 0.91, ...]
+```
 
-return only:
+the API can return only:
 
+```text
 Prediction: 7
+```
 
-It eliminates most of the confidence information.
-Rounding off the confidence scores
+This removes much of the continuous confidence information.
 
-Instead of exposing a highly precise probability score:
+---
 
+### Round confidence values
+
+Instead of exposing highly precise probabilities:
+
+```text
 0.91372841
+```
 
-one could use less precise:
+an API could expose a less precise value.
 
+For example:
+
+```text
 0.9
-          
- Lessening precision could lead to less informative optimization.
-Add noise properly calibrated
+```
 
-Adding noise to the model also reduces the reliability of the signal available to the attacker.
+Reducing precision can make optimization less informative.
 
-Nevertheless, privacy protection measures need to be carefully crafted, as too much noise may also undermine the utility of the model.
+---
 
-Security Implications
+### Add carefully calibrated noise
 
-The most important lesson from this example is not that it is possible to reconstruct digits from MNIST.
+Noise can also reduce the reliability of the signal available to an attacker.
 
-The general lesson from this exercise is:
+However, privacy protection should be designed carefully because excessive noise can also reduce legitimate model utility.
 
-    A trained machine learning model contains information about the training dataset; this information can be exploited based on the prediction interface of the model.
+---
 
-The latter is especially important when it comes to machine learning APIs.
+# Security Perspective
 
-Thus, a system designer needs to think not only of:
+The most important lesson is not that MNIST digits can be reconstructed.
 
+The broader lesson is:
+
+> **A trained machine learning model can contain information about the data used to train it, and the model's prediction interface determines how much of that information an external party can exploit.**
+
+This becomes particularly important for deployed machine learning APIs.
+
+A system designer should therefore consider not only:
+
+```text
 How accurate is my model?
+```
 
 but also:
 
-What information does my model leak?
+```text
+What information does my model reveal?
+```
 
-Reproducibility
+---
 
-This experiment was done in:
+# Reproducibility
 
-    Python
-    PyTorch
-    MNIST
-    Gradient-based optimization
-    nn.Linear(784, 10) classifier
+This experiment was implemented using:
 
-The attack implementation was done without utilizing any third-party tool for model inversion.
+* Python
+* PyTorch
+* MNIST
+* Gradient-based optimization
+* A linear `nn.Linear(784, 10)` classifier
 
-Thus, this experiment is useful as a small educational example of the mechanism.
-Key Takeaways          
+The attack was implemented directly rather than relying on an external model inversion library.
 
-  
- The main conclusions that we can draw from this experiment are the following:
+This makes the experiment useful as a small educational reproduction of the underlying mechanism.
 
-    Inversion of the model is possible even for such simple linear classifier.
-    The reconstruction is an example of class prototype rather than exact copy of an image from the training set.
-    784-dimensional input allows the optimizer to have quite a bit of room to produce noisy examples.
-    Relatively low classifier accuracy of 91.79% results in poorer reconstructions compared to models with high accuracy.
-    Linear models are very easy to analyze since their gradient w.r.t. the input can be computed easily.
-    Confidence scores provide valuable information to the adversary.
-    Only returning hard labels, decreasing precision of confidence scores or adding noise can protect the model from this kind of attack.
-    Privacy problems become much more important if individual identities correspond directly to model classes.
+---
 
-Final takeaway
+# Key Takeaways
 
-This experiment opened up a new view of the process of forgetting of the data by a model for me.
+The main conclusions from this experiment are:
 
-Indeed, the model does not simply store data in some kind of database. What it does is using training data to learn some parameters of the decision function.
+1. **Model inversion can work even against a simple linear classifier.**
+2. **The reconstruction represents a class prototype rather than necessarily recovering an individual training example.**
+3. **The 784-dimensional MNIST input gives the optimizer substantial freedom to produce noisy solutions.**
+4. **The relatively low 91.79% classifier accuracy contributes to weaker reconstructions compared with stronger classifiers.**
+5. **Linear models are particularly straightforward to analyze because their gradients with respect to the input are easy to compute.**
+6. **Confidence scores provide useful information to an attacker.**
+7. **Returning only hard labels, reducing confidence precision, or adding appropriate noise can reduce the information available to this type of attack.**
+8. **The privacy implications become substantially more significant when individual identities correspond directly to model classes.**
 
-However, the parameters can still carry information about the underlying distribution of the training data.
+---
 
-In this particular experiment, the simple linear classifier trained on MNIST provided enough information to produce class-level reconstructions of input when the input was optimized against the fixed model.
+# Final Takeaway
 
-The fact that the reconstructions are noisy and not perfect is precisely why this experiment is interesting.
+This experiment changed my perspective on what it means for a model to "forget" its training data.
 
-What the attacker asks is not:
+A model does not simply store a dataset in an obvious database-like form. Instead, training transforms the data into parameters that define a decision function.
 
-    "Give me the training image."
+Yet those parameters can still reveal structure about the original training distribution.
 
-But rather:
+In this experiment, a simple linear classifier trained on MNIST was enough to produce recognizable class-level structures when its input was optimized against the frozen model.
 
-    "What image would you be most confident that it belongs to class c?" 
-  
-  
-  
+The reconstructed images are imperfect and noisy, but that is precisely what makes the experiment interesting.
 
-That is the fundamental insight of privacy regarding model inversion.
-References
+The attacker never asks:
 
-    Fredrikson, M., Jha, S., & Ristenpart, T. (2015). Model Inversion Attacks that Exploit Confidence Information and Basic Countermeasures. Proceedings of the 22nd ACM SIGSAC Conference on Computer and Communications Security (CCS).
+> "Give me the training image."
 
-    Boenisch, F. (2020). Attacks against Machine Learning Privacy (Part 1): Model Inversion Attacks with the IBM-ART Framework.
+Instead, the attacker asks the model:
 
-    Boenisch, F. (2021). Attacks against Machine Learning Privacy (Part 2): Membership Inference Attacks with TensorFlow Privacy.
+> "What input would make you most confident that this belongs to class `c`?"
 
-Experiment Summary
+The answer is encoded in the model's own decision boundary.
 
+That is the core privacy insight behind model inversion.
+
+---
+
+# References
+
+1. Fredrikson, M., Jha, S., & Ristenpart, T. (2015). *Model Inversion Attacks that Exploit Confidence Information and Basic Countermeasures*. Proceedings of the 22nd ACM SIGSAC Conference on Computer and Communications Security (CCS).
+
+2. Boenisch, F. (2020). *Attacks against Machine Learning Privacy (Part 1): Model Inversion Attacks with the IBM-ART Framework.*
+
+3. Boenisch, F. (2021). *Attacks against Machine Learning Privacy (Part 2): Membership Inference Attacks with TensorFlow Privacy.*
+
+---
+
+## Experiment Summary
+
+```text
 Dataset
 MNIST
-60,000 training samples
-10,000 test samples
-28 x 28 pixels
+60,000 training images
+10,000 test images
+28 × 28 pixels
 
         ↓
 
@@ -649,7 +783,7 @@ nn.Linear(784, 10)
 
 Training
 5 epochs
-Stochastic Gradient Descent
+SGD
 91.79% test accuracy
 
         ↓
@@ -657,34 +791,23 @@ Stochastic Gradient Descent
 Model Inversion
 10 target classes
 2,000 iterations per class
-Pixels of input optimized
-Model weights fixed
+Input pixels optimized
+Model weights frozen
 
         ↓
 
 Output
-10 class prototypes reconstructed
+10 reconstructed class prototypes
 
         ↓
 
 Observation
-Coarse structures identifiable
-noisy reconstructions
+Recognizable coarse structures
+but noisy reconstructions
 
         ↓
 
 Privacy Insight
 Model parameters + confidence information
-reveal properties of training distribution
-
-Last updated on Aug 22, 2026
-Model Inversion
-Machine Learning
-MNIST
-PyTorch
-Trustworthy AI
-⚡️ Turn Jupyter Notebooks into Blog Posts Jul 15, 2024 →
-
-© 2026 Ritesh Mishra. This work is licensed under CC BY NC ND 4.0
-
-Made with Hugo Blox — Open Source. Build yours →
+can reveal information about training distribution
+```
