@@ -23,7 +23,7 @@ image:
 
 ---
 
-## Why Model Inversion Matters in Trustworthy AI
+## Why Model Inversion Matters 
 
 During training, a model learns patterns from the data provided to it. In some cases, information about these patterns can be exploited by an attacker.
 ML models do not simply learn a mapping from inputs to outputs.
@@ -43,22 +43,6 @@ The attacker treats the input itself as the optimization variable and searches f
 ---
 
 # Background
-
-Before discussing the attack, it is useful to look at the usual ML training process:
-
-```text
-Training data
-     ->
-ML model
-     ->
-Optimization
-     ->
-Learned model parameters
-     ->
-Predictions
-```
-
-During inversion, the model is already trained, so I keep its parameters fixed and optimize the input instead.
 
 The attacker already has the trained model and instead searches for an input that produces a desired prediction:
 
@@ -296,41 +280,6 @@ This difference is important.
 Model inversion does not necessarily produce a clean photograph-like reconstruction.
 
 What it reveals is the type of information encoded by the model's learned decision boundary.
-
----
-
-
-
-
-# The Role of Confidence Scores
-
-The attack takes advantage of the fact that the classifier reveals real-valued confidence information.
-
-Conceptually:
-
-```text
-Input image
-     ->
-Frozen classifier
-     ->
-Class probabilities
-     ->
-Target class confidence
-     ->
-Gradient signal
-     ->
-Modify input
-     ->
-Target confidence increases
-```
-
-This loop continues until the input image is strongly related to the target class.
-
-It follows that a major security lesson is:
-
-> **The output interface of a ML model can affect its privacy risk.**
-
-The model itself may remain unchanged, while exposing more detailed prediction information can make certain attacks substantially easier.
 
 ---
 
