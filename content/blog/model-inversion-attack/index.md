@@ -299,66 +299,8 @@ What it reveals is the type of information encoded by the model's learned decisi
 
 ---
 
-# A Class Prototype - Not a Training Example
 
-An important observation from this experiment is that the reconstruction should **not** be interpreted as recovery of a specific MNIST training image.
 
-MNIST contains many different examples of each digit.
-
-For example, the training set contains thousands of different handwritten versions of digit `7`.
-
-Therefore, when the attacker asks:
-
-```text
-"What does the model think a 7 should look like?"
-```
-
-the optimization is not necessarily going to recover one particular training image.
-
-Instead, it tends toward a representation that strongly activates the classifier for class `7`.
-
-The result is better interpreted as a:
-
-> **class prototype**
-
-rather than:
-
-> **recovered training sample**
-
-This distinction is particularly important when discussing privacy.
-
----
-
-# Why the Attack Is Possible
-
-The attack depends on the information exposed by the model.
-
-Suppose an API returns only:
-
-```text
-Prediction: 7
-```
-
-The attacker receives relatively little information.
-
-But suppose the API returns:
-
-```text
-0 -> 0.001
-1 -> 0.002
-2 -> 0.003
-...
-7 -> 0.91
-...
-```
-
-Now the attacker has considerably more information about how the model responds to changes in the input.
-
-Those confidence values provide a much stronger optimization signal.
-
-This is why confidence information can become a privacy concern.
-
----
 
 # The Role of Confidence Scores
 
@@ -389,44 +331,6 @@ It follows that a major security lesson is:
 > **The output interface of a ML model can affect its privacy risk.**
 
 The model itself may remain unchanged, while exposing more detailed prediction information can make certain attacks substantially easier.
-
----
-
-
-
-# Why the Reconstructions Are Noisy
-
-An interesting result from this experiment is that the reconstructed images are relatively noisy.
-
-There are some of possible explanations.
-
-## 1. High-dimensional input
-
-MNIST contains:
-
-```text
-28 * 28 = 784
-```
-
-input dimensions.
-
-The optimizer therefore has 784 independent pixel dimensions it can manipulate.
-
-Without an explicit image prior or strong spatial regularization, the optimization can exploit unusual pixel configurations that increase the target class score.
-
----
-
-## 2. Limited model accuracy
-
-The classifier achieves:
-
-**91.79% test accuracy**
-
-This is substantially lower than a typical MNIST CNN.
-
-The learned decision boundary therefore provides a less accurate representation of the true distribution of handwritten digits.
-
-When the attacker optimizes against this decision boundary, the resulting prototype can inherit those weaknesses.
 
 ---
 
@@ -490,76 +394,8 @@ That's why the consequences for privacy of model inversion heavily depend on:
 
 ---
 
-# What This Experiment Actually Demonstrates
 
-The experiment demonstrates three important ideas.
-
-### 1. Model parameters contain information
-
-The classifier's parameters encode statistical structure learned from MNIST.
-
-The attacker does not need direct access to the original training images to obtain a meaningful signal.
-
-### 2. Inputs can be optimized against a frozen model
-
-The attacker does not need to retrain the classifier.
-
-Instead:
-
-```text
-Freeze model
-    ->
-Optimize input
-    ->
-Increase target confidence
-    ->
-Recover class prototype
-```
-
-### 3. Confidence information can increase attack capability
-
-A richer output interface gives the attacker more information about the model's behavior.
-
-This makes confidence scores an important consideration in privacy-sensitive ML systems.
-
----
-
-### Add carefully calibrated noise
-
-Noise can also reduce the reliability of the signal available to an attacker.
-
-However, privacy protection should be designed carefully because excessive noise can also reduce legitimate model utility.
-
----
-
-# Security Perspective
-
-The  MNIST digits cannot be reconstructed.
-
-The important lesson is:
-
-> **A trained machine learning model can contain information about the data used to train it, and the model's prediction interface determines how much of that information an external party can exploit.**
-
-This becomes particularly important for deployed machine learning APIs.
-
-A system designer should therefore consider not only:
-
-```text
-How accurate is my model?
-```
-
-but also:
-
-```text
-What information does my model reveal?
-```
-
----
-
-
-# Key Takeaways
-
-The main conclusions from this experiment are:
+# Conclusions
 
 1. **Possibly successful the invert a linear classifier model.**
 2. **The reconstructed image is a class prototype and not necessarily a specific training sample.**
@@ -584,50 +420,3 @@ The main conclusions from this experiment are:
 
 ---
 
-## Experiment Summary
-
-```text
-Dataset
-MNIST
-60,000 training images
-10,000 test images
-28 × 28 pixels
-
-        ->
-
-Target Model
-Linear Softmax Classifier
-nn.Linear(784, 10)
-
-        ->
-
-Training
-5 epochs
-SGD
-91.79% test accuracy
-
-        ->
-
-Model Inversion
-10 target classes
-2,000 iterations per class
-Input pixels optimized
-Model weights frozen
-
-        ->
-
-Output
-10 reconstructed class prototypes
-
-        ->
-
-Observation
-Recognizable coarse structures
-but noisy reconstructions
-
-        ->
-
-Privacy Insight
-Model parameters + confidence information
-can reveal information about training distribution
-```
